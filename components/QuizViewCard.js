@@ -6,7 +6,8 @@ import { Entypo, MaterialIcons } from '@expo/vector-icons';
 
 const QuizViewCard = (props) => {
     const data = props.quiz;
-    const deleteQuizFromTopic = props.deleteQuizFromTopic;
+    const setShowConfirmationModal = props.setShowConfirmationModal;
+    const setWarningData = props.setWarningData;
 
     return (
         <View style={{
@@ -42,7 +43,15 @@ const QuizViewCard = (props) => {
                         </Pressable>
                         <Pressable 
                             style={styles.pressableStyle}
-                            onPress={() => deleteQuizFromTopic(data.quiz_id, data.topic_id)}
+                            onPress={() => {
+                                setWarningData({
+                                    title : "Deletion Warning",
+                                    body : `Are you sure you want to delete the quiz card "${data.question}"`,
+                                    t_id : data.topic_id,
+                                    q_id : data.quiz_id,
+                                })
+                                setShowConfirmationModal(true);
+                            }}
                         >
                             <View style={styles.buttonBackground}>
                                 <MaterialIcons name="delete" size={28} color="red" />

@@ -24,7 +24,8 @@
     "react-native-screens": "^3.18.2",
     "react-native-select-dropdown": "^3.2.1",
     "react-native-sqlite-storage": "^6.0.1",
-    "react-native-vector-icons": "^9.2.0"
+    "react-native-vector-icons": "^9.2.0",
+    "expo-updates": "~0.15.6"
   },
   "devDependencies": {
     "@babel/core": "^7.18.6"

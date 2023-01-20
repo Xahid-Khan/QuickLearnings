@@ -3,13 +3,15 @@ import {useNavigation} from "@react-navigation/native";
 import {COLORS, FONTS, SHADOWS, SIZES} from "../constants";
 import SelectDropdown from 'react-native-select-dropdown';
 import { Entypo, MaterialIcons } from '@expo/vector-icons';
+import { useState } from 'react';
 
 const topicBGImage = require('../assets/TopicBG.png');
 
 const TopicCard = (props) => {
     const navigation = useNavigation();
     const data = props.data;
-    const deleteTopicAndData = props.deleteTopicAndData;
+    const setShowConfirmationModal = props.setShowConfirmationModal;
+    const setWarningData = props.setWarningData;
 
     return (
         <View style={{
@@ -20,7 +22,11 @@ const TopicCard = (props) => {
             ...SHADOWS.dark,
         }}>
            
-            <TouchableOpacity onPress={()=> {navigation.navigate('Topic', {data});}}>
+            <TouchableOpacity onPress={
+                ()=> {
+                    navigation.navigate('Topic', {data});
+                    }
+                }>
                 <View style={{
                     width: '100%', height: 250
                 }}>
@@ -42,7 +48,15 @@ const TopicCard = (props) => {
                         </Pressable>
                         <Pressable 
                             style={styles.pressableStyle}
-                            onPress={() => deleteTopicAndData(data.topic_id)}
+                            onPress={() => {
+                                setWarningData({
+                                    title: "Deletion Warning:",
+                                    body: `Are you sure you want to delete ${data.topic} topic. All related Questions will be deleted as well.
+                                    `,
+                                    id : data.topic_id
+                                })
+                                setShowConfirmationModal(true);
+                            }}
                         >
                             <View style={styles.buttonBackground}>
                                 <MaterialIcons name="delete" size={35} color="red" />

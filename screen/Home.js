@@ -11,21 +11,27 @@ import { CircleButton, RectButton } from '../components/Button';
 import {COLORS, SIZES, SHADOWS, DummyData} from "../constants";
 import * as SQLite from "expo-sqlite";
 import { useEffect, useState } from 'react';
-
+import ConfirmationModal from '../modals/ConfirmationModal';
 
 
 const Home = () => {
     const [loading, setLoading] = useState(true);
     const [modalVisible, setModalVisible] = useState(false);
+    const [showConfirmationModal, setShowConfirmationModal] = useState(false);
     const [topicData, setTopicData] = useState([]);
     const [db, setDb] = useState(SQLite.openDatabase('QL_DB.db'));
-    const [user, setUser] = useState([])
+    const [user, setUser] = useState([]);
+    const [warningData, setWarningData] = useState({
+        title   : "",
+        body    : "",
+        id      : null
+    });
     const [newUser, setNewUser] = useState({
-                        first_name 	: "",
-                        last_name 	: "",
-                        age 		: null,
-                        country 	: null
-                    });
+        first_name 	: "",
+        last_name 	: "",
+        age 		: null,
+        country 	: null
+    });
     
     useEffect(() => {
         if (user.length == 0 &&
@@ -61,7 +67,7 @@ const Home = () => {
         db.transaction(tx=> {
             tx.executeSql("SELECT * FROM topic", null,
             (txObj, resultSet) => {
-                setTopicData(resultSet.rows._array);
+                setTopicData(resultSet.rows._array.reverse());
                 setLoading(false);
             },
             (txObj, error) => console.log(error))
@@ -69,6 +75,7 @@ const Home = () => {
     }
 
     const addNewTopicToDB = (newTopic) => {
+        setLoading(true);
         db.transaction(tx=> {
             tx.executeSql(`
             INSERT INTO "topic" (topic, description) VALUES (?,?)`,
@@ -80,17 +87,18 @@ const Home = () => {
         })
     }
 
-    const deleteTopicAndData = (topicId) => {
+    const deleteTopicAndData = () => {
+        setLoading(true);
         db.transaction(tx=> {
             tx.executeSql(`DELETE FROM quiz WHERE topic_id = ?;`,
-				[topicId],
+				[warningData.id],
 				(txObj, resultSet) => {
 					console.log("Quiz Deleted...");
 				},
 				(txObj, error) => {console.log(error)}
 				)
 			tx.executeSql(`DELETE FROM topic WHERE topic_id = ?;`,
-				[topicId],
+				[warningData.id],
 				(txObj, resultSet) => {
 					getTopicData();
 				},
@@ -122,13 +130,37 @@ const Home = () => {
                         position= {'absolute'}
                         key={"add-new-topic-button"}
                         />
-                        <FlatList data={topicData}
-                            keyboardShouldPersistTaps={"always"}
-                            ListHeaderComponent={<HomeHeaderComp userName={user[0].first_name}/>}
-                            renderItem={({item}) => <TopicCard data={item} deleteTopicAndData={deleteTopicAndData}/>}
-                            keyExtractor = {(item) => {return item.topic_id.toString() + "_topic"}}
-                            showsVerticalScrollIndicator={true}
-                        />
+                        {
+                            topicData.length == 0 ? 
+                            <View>
+                                <HomeHeaderComp userName={user[0].first_name} />
+                                <View style={{
+                                    height:"90%"
+                                }}>
+                                    <Text style={{
+                                        color:"white",
+                                        alignSelf:"center",
+                                        margin: 50,
+                                        fontWeight:"bold",
+                                        fontSize: SIZES.large,
+                                        textAlign: "center"
+                                    }}>Use the "+" button on bottom-right corner to add new Topic</Text>
+                                </View>
+                            </View>
+                            :
+                            <FlatList data={topicData}
+                                keyboardShouldPersistTaps={"always"}
+                                ListHeaderComponent={<HomeHeaderComp userName={user[0].first_name}/>}
+                                renderItem={
+                                    ({item}) => <TopicCard 
+                                                data={item}
+                                                setShowConfirmationModal = {setShowConfirmationModal}
+                                                setWarningData = {setWarningData}
+                                                />}
+                                keyExtractor = {(item) => {return item.topic_id.toString() + "_topic"}}
+                                showsVerticalScrollIndicator={true}
+                            />
+                        }
                     </View>
                     <TopicAndQuestionModal 
                         onAddHandle = {addNewTopicToDB}
@@ -138,6 +170,12 @@ const Home = () => {
                         head = {"Topic Title"}
                         body = {"Description"}
                     />
+                    <ConfirmationModal
+                        confirmationHandle = {deleteTopicAndData}
+                        showConfirmationModal = {showConfirmationModal}
+                        setShowConfirmationModal = {setShowConfirmationModal}
+                        warningData = {warningData}
+                        />
                 </View>
         }
         

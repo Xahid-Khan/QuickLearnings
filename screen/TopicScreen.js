@@ -7,6 +7,7 @@ import { CircleButton, RectButton } from '../components/Button';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {COLORS} from "../constants";
 import * as SQLite from "expo-sqlite";
+import ConfirmationModal from '../modals/ConfirmationModal';
 
 const bgImage = require("../assets/TopicBG.png");
 const goBackImage = require("../assets/goBack.png");
@@ -22,16 +23,23 @@ const TopicScreen = ({route}) => {
 	const [db, setDb] = useState(SQLite.openDatabase("QL_DB.db"));
 	const [quizData, setQuizData] = useState([]);
 	const [filterInput, setFilterInput] = useState("");
+	const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+	const [warningData, setWarningData] = useState({
+        title : "",
+		body : "",
+		t_id : null,
+		q_id : null,
+    });
 
 	const getUpdatedQuizData = (filterInput) => {
 		db.transaction(tx => {
-            tx.executeSql('SELECT * FROM quiz WHERE "topic_id" = ? and question LIKE ?',
-			[topic.topic_id, "%"+filterInput+"%"],
+            tx.executeSql('SELECT * FROM quiz WHERE "topic_id" = ? and (question LIKE ? OR answer LIKE ?)',
+			[topic.topic_id, "%"+filterInput+"%", "%"+filterInput+"%"],
             (txObj, resultSet) => {
                 setQuizData(resultSet.rows._array);
 				setTimeout(()=> {
 					setLoading(false);
-				}, 1000);
+				}, 500);
             },
             (txObj, error) => console.log(error)
             );
@@ -43,6 +51,7 @@ const TopicScreen = ({route}) => {
 	}, [db, loading])
 
 	const addNewQuizToDB = (newQuiz) => {
+		setLoading(true);
 		db.transaction(tx=> {
 			tx.executeSql(`INSERT INTO quiz (question, answer, topic_id) VALUES (?, ?, ?)`,
 				[newQuiz.head, newQuiz.body, topic.topic_id],
@@ -53,10 +62,11 @@ const TopicScreen = ({route}) => {
 		})
 	}
 
-	const deleteQuizFromTopic = (quizId, topicId) => {
+	const deleteQuizFromTopic = () => {
+		setLoading(true);
 		db.transaction(tx=> {
 			tx.executeSql(`DELETE FROM quiz WHERE quiz_id = ? and topic_id = ?;`,
-				[quizId, topicId],
+				[warningData.q_id, warningData.t_id],
 				(txObj, resultSet) => {
 					getUpdatedQuizData(filterInput);
 				},
@@ -95,6 +105,7 @@ const TopicScreen = ({route}) => {
 					<RectButton 
 						buttonImage={logo}
 						onPressHandle={()=> {
+							db.closeAsync();
 							const randomeData = quizData.sort(() => Math.random() - 0.5);
 							navigation.navigate("Quiz", {randomeData})}}
 						activate = {quizData.length < 5 ? true : false}
@@ -124,9 +135,15 @@ const TopicScreen = ({route}) => {
 							}}
 							placeholder = {"SEARCH"}
 							maxLength = {64}
-							onChangeText = {setFilterInput}
+							value = {filterInput}
+							onChangeText = {(e) => {
+								setFilterInput(e.replace(/[`~!@#$%^&*|+\=;:'"<>\{\}\[\]\\\/]/gi, ''));
+								if (e == '') {
+									getUpdatedQuizData("")
+								}
+							}}
 							/>
-							<Button title='Search' onPress={() => getUpdatedQuizData(filterInput)}></Button>
+							<Button title='Search' key={"search-quiz"} onPress={() => getUpdatedQuizData(filterInput)}></Button>
 					</View>
 				</View>
 			</View>
@@ -154,20 +171,32 @@ const TopicScreen = ({route}) => {
 						<FlatList data={quizData}
 							keyboardShouldPersistTaps={"always"}
 							ListHeaderComponent={<TopicViewHeader topic={topic}/>}
-							renderItem={({item}) => <QuizViewCard quiz={item} deleteQuizFromTopic={deleteQuizFromTopic}/>}
+							renderItem={
+								({item}) => <QuizViewCard 
+											quiz={item}
+											db = {db}
+											setWarningData = {setWarningData}
+											setShowConfirmationModal = {setShowConfirmationModal}
+											/>}
 							keyExtractor = {(item) => {return item.quiz_id.toString() + "_quiz"}}
 							showsVerticalScrollIndicator={true}
 						>
 						</FlatList>
 						}
 						<TopicAndQuestionModal 
-                        onAddHandle = {addNewQuizToDB}
-                        modalVisible = {modalVisible}
-                        setModalVisible = {setModalVisible}
-                        title = {"Add New Quiz"}
-                        head = {"Question"}
-                        body = {"Answer"}
-                    />
+							onAddHandle = {addNewQuizToDB}
+							modalVisible = {modalVisible}
+							setModalVisible = {setModalVisible}
+							title = {"Add New Quiz"}
+							head = {"Question"}
+							body = {"Answer"}
+                    	/>
+						<ConfirmationModal 
+							confirmationHandle = {deleteQuizFromTopic}
+							warningData = {warningData}
+							showConfirmationModal = {showConfirmationModal}
+							setShowConfirmationModal = {setShowConfirmationModal}
+						/>
 					</View>
 				</ImageBackground>
 			</View>

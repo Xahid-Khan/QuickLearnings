@@ -15,6 +15,10 @@ const TopicAndQuestionModal = (props) => {
     const [newTopic, setNewTopic] = useState("");
     const [newDescription, setNewDescription] = useState("");
 
+    const validateInput = (event) => {
+        return event.replace(/[`~!@#$%^&*|+\=;:'"<>\{\}\[\]\\\/]/gi, '');
+    }
+
     return (
         <Modal
             animationType="slide"
@@ -29,12 +33,13 @@ const TopicAndQuestionModal = (props) => {
                     flexDirection:"row",
                     justifyContent:"center",
                     alignSelf:"center",
-                    marginTop:"25%",
+                    marginTop:"28%",
                     borderRadius:25,
                     backgroundColor:COLORS.primary,
                     width:"80%",
                     height:"80%",
-                    opacity:1
+                    borderWidth: 2,
+                    borderColor: "aqua",
                 }}>
                     <View style={{
                         flex:1,
@@ -58,7 +63,8 @@ const TopicAndQuestionModal = (props) => {
                         }}
                             placeholder={headerPlaceHolder + ' (64 Characters Max)'}
                             maxLength={64}
-                            onChangeText={setNewTopic}
+                            value = {newTopic}
+                            onChangeText={(e) => setNewTopic(validateInput(e))}
                         />
                         <TextInput style={{
                             marginTop:"5%",
@@ -74,7 +80,8 @@ const TopicAndQuestionModal = (props) => {
                             multiline
                             maxLength={512}
                             placeholder= {bodyPlaceHolder + ' (512 Characters Max)'}
-                            onChangeText={setNewDescription}
+                            onChangeText={(e) => setNewDescription(validateInput(e))}
+                            value = {newDescription}
                         />
                         <View style={{
                             height:170,
@@ -86,7 +93,7 @@ const TopicAndQuestionModal = (props) => {
                                     addToDB({head: newTopic, body: newDescription});
                                     setModalVisible(!modalVisible);
                                 }}
-                                buttonText={"Add Topic"}
+                                buttonText={headerPlaceHolder.includes("Topic") ? "Add Topic" : "Add Quiz"}
                                 activate={newTopic == "" || newDescription == "" ? true : false}
                                 backgroundColor={COLORS.right}
                                 width={"100%"}
