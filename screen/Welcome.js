@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import { SafeAreaView, FlatList } from 'react-native';
-import { screenStyles } from "../styles/screen";
+import { screenStyles } from "../styles/screenStyle";
 import { ImageBackground } from 'react-native';
 import { CircleButton } from '../components/Button';
 import { HomeHeaderComp, LoadingScreen, StatusBarComp, TopicCard } from '../components';

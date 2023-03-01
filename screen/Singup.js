@@ -12,7 +12,6 @@ import { auth, db } from "../firebase";
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { collection, addDoc } from 'firebase/firestore';
 import { ScrollView } from 'react-native';
-import { async } from '@firebase/util';
 
 
 const Singup = () => {

@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ImageBackground } from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
 import { Button } from 'react-native';
-import { screenStyles } from '../styles/screen';
+import { screenStyles } from '../styles/screenStyle';
 import { useNavigation } from '@react-navigation/core';
 import { StatusBarComp } from '../components';
 import { COLORS } from '../constants';
