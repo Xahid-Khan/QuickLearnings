@@ -43,10 +43,12 @@ const ConfirmationModal = (props) => {
 						fontWeight: "bold",
 						padding: 5,
 						width:"90%",
-						color: COLORS.white,
+						color: "red",
 						borderBottomWidth: 2,
 						textAlign: "center",
 						borderColor: "white",
+						textShadowColor:"white",
+    					textShadowRadius:2
 					}}>{warningData.title}</Text>
 
 					<Text style={{

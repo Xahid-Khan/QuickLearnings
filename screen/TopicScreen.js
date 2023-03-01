@@ -8,6 +8,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import {COLORS} from "../constants";
 import * as SQLite from "expo-sqlite";
 import ConfirmationModal from '../modals/ConfirmationModal';
+import { db, auth, currentUser } from '../firebase';
+import * as transactions from "../modals/transactions";
+import { addDoc, collection, deleteDoc, doc, getDocs, where } from 'firebase/firestore';
 
 const bgImage = require("../assets/TopicBG.png");
 const goBackImage = require("../assets/goBack.png");
@@ -20,7 +23,7 @@ const TopicScreen = ({route}) => {
 	const topic = route.params.data;
 	const [loading, setLoading] = useState(true);
 	const [modalVisible, setModalVisible] = useState(false);
-	const [db, setDb] = useState(SQLite.openDatabase("QL_DB.db"));
+	const [db_local, setDb] = useState(SQLite.openDatabase("QL_DB.db"));
 	const [quizData, setQuizData] = useState([]);
 	const [filterInput, setFilterInput] = useState("");
 	const [showConfirmationModal, setShowConfirmationModal] = useState(false);
@@ -31,48 +34,22 @@ const TopicScreen = ({route}) => {
 		q_id : null,
     });
 
-	const getUpdatedQuizData = (filterInput) => {
-		db.transaction(tx => {
-            tx.executeSql('SELECT * FROM quiz WHERE "topic_id" = ? and (question LIKE ? OR answer LIKE ?)',
-			[topic.topic_id, "%"+filterInput+"%", "%"+filterInput+"%"],
-            (txObj, resultSet) => {
-                setQuizData(resultSet.rows._array);
-				setTimeout(()=> {
-					setLoading(false);
-				}, 500);
-            },
-            (txObj, error) => console.log(error)
-            );
-        })
-	}
-
 	useEffect(() => {
 		getUpdatedQuizData(filterInput);
-	}, [db, loading])
+	}, [db_local, loading]);
+	
+	const getUpdatedQuizData = (filterInput) => {
+		transactions.getUpdatedQuizData(filterInput, setQuizData, setLoading, topic.id)
+	}
 
 	const addNewQuizToDB = (newQuiz) => {
-		setLoading(true);
-		db.transaction(tx=> {
-			tx.executeSql(`INSERT INTO quiz (question, answer, topic_id) VALUES (?, ?, ?)`,
-				[newQuiz.head, newQuiz.body, topic.topic_id],
-				(txObj, resultSet)=> {
-					getUpdatedQuizData(filterInput);
-					console.log(resultSet.rows._array)},
-				(txObj, error) => {console.log(error)})
-		})
+		transactions.addNewQuizToDB(newQuiz, topic);
+		getUpdatedQuizData(filterInput);
 	}
 
 	const deleteQuizFromTopic = () => {
-		setLoading(true);
-		db.transaction(tx=> {
-			tx.executeSql(`DELETE FROM quiz WHERE quiz_id = ? and topic_id = ?;`,
-				[warningData.q_id, warningData.t_id],
-				(txObj, resultSet) => {
-					getUpdatedQuizData(filterInput);
-				},
-				(txObj, error) => {console.log(error)}
-				)
-		})
+		transactions.deleteQuizFromTopic(warningData.q_id);
+		getUpdatedQuizData(filterInput);
 	}
 
 	if (loading) {
@@ -105,7 +82,7 @@ const TopicScreen = ({route}) => {
 					<RectButton 
 						buttonImage={logo}
 						onPressHandle={()=> {
-							db.closeAsync();
+							db_local.closeAsync();
 							const randomeData = quizData.sort(() => Math.random() - 0.5);
 							navigation.navigate("Quiz", {randomeData})}}
 						activate = {quizData.length < 5 ? true : false}
@@ -174,11 +151,11 @@ const TopicScreen = ({route}) => {
 							renderItem={
 								({item}) => <QuizViewCard 
 											quiz={item}
-											db = {db}
+											db = {db_local}
 											setWarningData = {setWarningData}
 											setShowConfirmationModal = {setShowConfirmationModal}
 											/>}
-							keyExtractor = {(item) => {return item.quiz_id.toString() + "_quiz"}}
+							keyExtractor = {(item) => {return item.id.toString() + "_quiz"}}
 							showsVerticalScrollIndicator={true}
 						>
 						</FlatList>

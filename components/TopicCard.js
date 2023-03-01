@@ -10,6 +10,9 @@ const topicBGImage = require('../assets/TopicBG.png');
 const TopicCard = (props) => {
     const navigation = useNavigation();
     const data = props.data;
+    const destination = props.destination;
+    const cardId = props.cardId;
+    const value = props.value;
     const setShowConfirmationModal = props.setShowConfirmationModal;
     const setWarningData = props.setWarningData;
 
@@ -24,7 +27,7 @@ const TopicCard = (props) => {
            
             <TouchableOpacity onPress={
                 ()=> {
-                    navigation.navigate('Topic', {data});
+                    navigation.navigate(destination, {data});
                     }
                 }>
                 <View style={{
@@ -41,19 +44,24 @@ const TopicCard = (props) => {
                         borderRadius: 50,
                         opacity: 0.8,
                     }}>
-                        <Pressable style={styles.pressableStyle}>
-                            <View style={styles.buttonBackground}>
-                                <Entypo name="edit" size={32} color="blue"/>
-                            </View>
-                        </Pressable>
+                        {
+                            props.editable ? 
+                                <Pressable style={styles.pressableStyle}>
+                                    <View style={styles.buttonBackground}>
+                                        <Entypo name="edit" size={32} color="blue"/>
+                                    </View>
+                                </Pressable>
+                                :
+                                null
+                        }
+                        
                         <Pressable 
                             style={styles.pressableStyle}
                             onPress={() => {
                                 setWarningData({
-                                    title: "Deletion Warning:",
-                                    body: `Are you sure you want to delete ${data.topic} topic. All related Questions will be deleted as well.
-                                    `,
-                                    id : data.topic_id
+                                    title: `Deletion Warning:\n"THIS ACTION IS NOT REVERSIBLE"`,
+                                    body: `Are you sure you want to delete ${value} topic. All related "DATA" will be deleted as well.`,
+                                    id : cardId
                                 })
                                 setShowConfirmationModal(true);
                             }}
@@ -76,7 +84,7 @@ const TopicCard = (props) => {
                         paddingLeft: 10, 
                         fontWeight: "bold",
                         alignSelf: "center",
-                        }}>{data.topic}</Text>
+                        }}>{value}</Text>
                 </View>
             </TouchableOpacity>
         </View>

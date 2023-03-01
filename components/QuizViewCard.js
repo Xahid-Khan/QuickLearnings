@@ -45,10 +45,10 @@ const QuizViewCard = (props) => {
                             style={styles.pressableStyle}
                             onPress={() => {
                                 setWarningData({
-                                    title : "Deletion Warning",
+                                    title : `Deletion Warning:\n"THIS ACTION IS NOT REVERSIBLE"`,
                                     body : `Are you sure you want to delete the quiz card "${data.question}"`,
-                                    t_id : data.topic_id,
-                                    q_id : data.quiz_id,
+                                    t_id : data.topicId,
+                                    q_id : data.id,
                                 })
                                 setShowConfirmationModal(true);
                             }}
