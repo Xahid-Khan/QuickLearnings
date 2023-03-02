@@ -1,7 +1,6 @@
 import { auth, db } from '../firebase';
 import { deleteDoc, collection, doc, addDoc, getDocs, where, query } from 'firebase/firestore';
 
-
 const getLanguages = (setLanguages, setIsLoading) => {
     if (auth.currentUser) {
         let newlanguages = []
@@ -56,7 +55,7 @@ const addNewLanguage = (languages, setModalVisible, setNewLanguage, newLanguage)
 const deleteLanguageAndData = (id) => {
     deleteDoc(doc(db, "languages", id))
         .then((res) => {
-            deleteAllDataForALanguage(id)
+            deleteAllDataForALanguage(id);
         })
         .catch((err) => {
             console.log(err);

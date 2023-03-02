@@ -23,7 +23,6 @@ const TopicScreen = ({route}) => {
 	const topic = route.params.data;
 	const [loading, setLoading] = useState(true);
 	const [modalVisible, setModalVisible] = useState(false);
-	const [db_local, setDb] = useState(SQLite.openDatabase("QL_DB.db"));
 	const [quizData, setQuizData] = useState([]);
 	const [filterInput, setFilterInput] = useState("");
 	const [showConfirmationModal, setShowConfirmationModal] = useState(false);
@@ -36,7 +35,7 @@ const TopicScreen = ({route}) => {
 
 	useEffect(() => {
 		getUpdatedQuizData(filterInput);
-	}, [db_local, loading]);
+	}, [loading]);
 	
 	const getUpdatedQuizData = (filterInput) => {
 		transactions.getUpdatedQuizData(filterInput, setQuizData, setLoading, topic.id)
@@ -82,8 +81,7 @@ const TopicScreen = ({route}) => {
 					<RectButton 
 						buttonImage={logo}
 						onPressHandle={()=> {
-							db_local.closeAsync();
-							const randomeData = quizData.sort(() => Math.random() - 0.5);
+							const randomeData = quizData.slice().sort(() => {Math.random() - 0.5})
 							navigation.navigate("Quiz", {randomeData})}}
 						activate = {quizData.length < 5 ? true : false}
 						buttonText = {quizData.length < 5 ? "Add 5 Quiz to Enable" : "SART PRACTICE"}
@@ -151,7 +149,6 @@ const TopicScreen = ({route}) => {
 							renderItem={
 								({item}) => <QuizViewCard 
 											quiz={item}
-											db = {db_local}
 											setWarningData = {setWarningData}
 											setShowConfirmationModal = {setShowConfirmationModal}
 											/>}

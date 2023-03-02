@@ -11,10 +11,9 @@ const goBackImage = require("../assets/goBack.png");
 
 const Quiz = ({route}) => {
     const navigation = useNavigation();
-    const quizData = route.params.randomeData;
-    
+    const newQuizData = route.params.randomeData;
+    const quizData = [...newQuizData].splice(0, newQuizData.length < 10 ? newQuizData.length : 10)
     const [loading, setLoading] = useState(true);
-    const [selectionMade, setSelectionMade] = useState(false);
     const [index, setIndex] = useState(0);
     const [quiz, setQuiz] = useState(quizData[index]);
     const [options, setOptions] = useState([]);

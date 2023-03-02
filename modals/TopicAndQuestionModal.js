@@ -92,6 +92,8 @@ const TopicAndQuestionModal = (props) => {
                                 onPressHandle= {() => {
                                     addToDB({head: newTopic, body: newDescription});
                                     setModalVisible(!modalVisible);
+                                    setNewTopic("");
+                                    setNewDescription("");
                                 }}
                                 buttonText={headerPlaceHolder.includes("Topic") ? "Add Topic" : "Add Quiz"}
                                 activate={newTopic == "" || newDescription == "" ? true : false}
