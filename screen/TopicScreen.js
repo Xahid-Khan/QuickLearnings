@@ -1,181 +1,135 @@
-import { View, Text, FlatList, ImageBackground, TextInput, Button  } from 'react-native'
-import { React, useEffect, useState } from 'react'
-import { useNavigation} from '@react-navigation/core';
+import { Text, View, SafeAreaView, FlatList} from 'react-native';
+import {
+    HomeHeaderComp, 
+    StatusBarComp, 
+    LoadingScreen, 
+    TopicCard, 
+    WelcomeForm,
+} from "../components";
 import TopicAndQuestionModal from "../modals/TopicAndQuestionModal";
-import { LoadingScreen, QuizViewCard, TopicViewHeader} from '../components';
 import { CircleButton, RectButton } from '../components/Button';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import {COLORS} from "../constants";
+import {COLORS, SIZES, SHADOWS, DummyData} from "../constants";
 import * as SQLite from "expo-sqlite";
+import { useEffect, useState } from 'react';
 import ConfirmationModal from '../modals/ConfirmationModal';
-import { db, auth, currentUser } from '../firebase';
+import { currentUser } from '../firebase';
 import * as transactions from "../modals/transactions";
-import { addDoc, collection, deleteDoc, doc, getDocs, where } from 'firebase/firestore';
-
-const bgImage = require("../assets/TopicBG.png");
-const goBackImage = require("../assets/goBack.png");
-const logo = require("../assets/logo.png");
-const plusImage = require("../assets/add_button.jpg");
 
 
 const TopicScreen = ({route}) => {
-	const navigation = useNavigation();
-	const topic = route.params.data;
-	const [loading, setLoading] = useState(true);
-	const [modalVisible, setModalVisible] = useState(false);
-	const [quizData, setQuizData] = useState([]);
-	const [filterInput, setFilterInput] = useState("");
-	const [showConfirmationModal, setShowConfirmationModal] = useState(false);
-	const [warningData, setWarningData] = useState({
-        title : "",
-		body : "",
-		t_id : null,
-		q_id : null,
+    const language = route.params.data;
+    const [loading, setLoading] = useState(true);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+    const [topicData, setTopicData] = useState([]);
+    const [user, setUser] = useState([]);
+    const [warningData, setWarningData] = useState({
+        title   : "",
+        body    : "",
+        id      : null
     });
+    
+    useEffect(() => {
+        getTopicData();
+    }, [loading])
 
-	useEffect(() => {
-		getUpdatedQuizData(filterInput);
-	}, [loading]);
-	
-	const getUpdatedQuizData = (filterInput) => {
-		transactions.getUpdatedQuizData(filterInput, setQuizData, setLoading, topic.id)
-	}
+    const getTopicData = () => {
+        transactions.getTopicData(language.id, setTopicData, setLoading)
+    }
 
-	const addNewQuizToDB = (newQuiz) => {
-		transactions.addNewQuizToDB(newQuiz, topic);
-		getUpdatedQuizData(filterInput);
-	}
+    const addNewTopicToDB = (newTopic) => {
+        transactions.addNewTopicToDB(newTopic, setLoading, language);
+        getTopicData();
+    }
 
-	const deleteQuizFromTopic = () => {
-		transactions.deleteQuizFromTopic(warningData.q_id);
-		getUpdatedQuizData(filterInput);
-	}
+    const deleteTopicAndData = () => {
+        transactions.deleteTopicAndData(warningData.id);
+        getTopicData();
+    }
 
-	if (loading) {
-		return (
-			<LoadingScreen />
-		)
-	}
-	
-	return (
-		<SafeAreaView key={"main-topic-screen"}>
-			<View>
-				<View style={{
-					paddingTop: 5,
-					flexDirection:"row", 
-					justifyContent:"space-between",
-					height:64,
-					backgroundColor: COLORS.primary,
-					}}
-					key={"topic-screen-custom-button"}>
-					<CircleButton 
-						buttonImage= {goBackImage}
-						imageWidth = {30}
-						imageHeight = {30}
-						onPressHandle= {()=> navigation.goBack()}
-						width={50} height={50}
-						borderRadius = {50}
-						backgroundColor = {COLORS.white}
-						key={"go-to-previous-screen"}
-					/>
-					<RectButton 
-						buttonImage={logo}
-						onPressHandle={()=> {
-							const randomeData = quizData.slice().sort(() => {Math.random() - 0.5})
-							navigation.navigate("Quiz", {randomeData})}}
-						activate = {quizData.length < 5 ? true : false}
-						buttonText = {quizData.length < 5 ? "Add 5 Quiz to Enable" : "SART PRACTICE"}
-						backgroundColor= {COLORS.quizViewCard}
-						borderWidth = {3}
-						borderColor = {COLORS.white}
-						opacity = {quizData.length < 5 ? 0.4 : 1}
-						key={"start-practice-test-button"}
-						/>
-				</View>
-				<View style={{
-						backgroundColor: COLORS.primary,
-						height: 50,}}>
-					<View style={{
-						flexDirection:"row",
-						justifyContent:"center",
-						}}>
-							<TextInput style={{
-								backgroundColor:COLORS.gray,
-								width: "75%",
-								height: 40,
-								borderRadius: 10,
-								marginRight: 10,
-								color: COLORS.white,
-								paddingHorizontal: 10
-							}}
-							placeholder = {"SEARCH"}
-							maxLength = {64}
-							value = {filterInput}
-							onChangeText = {(e) => {
-								setFilterInput(e.replace(/[`~!@#$%^&*|+\=;:'"<>\{\}\[\]\\\/]/gi, ''));
-								if (e == '') {
-									getUpdatedQuizData("")
-								}
-							}}
-							/>
-							<Button title='Search' key={"search-quiz"} onPress={() => getUpdatedQuizData(filterInput)}></Button>
-					</View>
-				</View>
-			</View>
-			<View  style={{width:"100%", height:"85%"}} 
-				key={"main-quiz-view"}>
+    
+    return (
+    <SafeAreaView style={{flex: 1}} key={"homePageSafeArea"}>
+        <StatusBarComp background={COLORS.statusBarColour}/>
+        {
+            loading ? 
+            <LoadingScreen/>
+            :
+            <View style={{flex:1}} key={"TopicScreen-screen"}>
+                <View key={"custom-buttons-TopicScreen"} style={{flex: 1}}>
+                    <CircleButton 
+                    buttonImage= {require('../assets/add_button.jpg')}
+                    imageWidth = {65}
+                    imageHeight = {65}
+                    onPressHandle= {() => setModalVisible(!modalVisible)}
+                    bottom={10} right={5} width={80} height={80}
+                    borderRadius = {50} opacity= {0.7}
+                    position= {'absolute'}
+                    key={"add-new-topic-button"}
+                />
+                    {
+                        topicData.length == 0 ? 
+                        <View>
+                            <HomeHeaderComp userName={currentUser().userName} />
+                            <View style={{
+                                height:"90%"
+                            }}>
+                                <Text style={{
+                                    color:"white",
+                                    alignSelf:"center",
+                                    margin: 50,
+                                    fontWeight:"bold",
+                                    fontSize: SIZES.large,
+                                    textAlign: "center"
+                                }}>Use the "+" button on bottom-right corner to add new Topic</Text>
+                            </View>
+                        </View>
+                        :
+                        <FlatList data={topicData}
+                            keyboardShouldPersistTaps={"always"}
+                            ListHeaderComponent={<HomeHeaderComp userName={currentUser().userName}/>}
+                            renderItem={
+                                ({item}) => <TopicCard 
+                                            data={item}
+                                            cardId = {item.id}
+                                            value = {item.topic}
+                                            destination = "QuizScreen"
+                                            setShowConfirmationModal = {setShowConfirmationModal}
+                                            setWarningData = {setWarningData}
+                                            editable = {true}
+                                            />}
+                            keyExtractor = {(item) => {return item.id.toString() + "_topic"}}
+                            showsVerticalScrollIndicator={true}
+                        />
+                    }
+                </View>
+                <TopicAndQuestionModal 
+                    onAddHandle = {addNewTopicToDB}
+                    modalVisible = {modalVisible}
+                    setModalVisible = {setModalVisible}
+                    title = {"Add New Topic"}
+                    head = {"Topic Title"}
+                    body = {"Description"}
+                />
+                <ConfirmationModal
+                    confirmationHandle = {deleteTopicAndData}
+                    showConfirmationModal = {showConfirmationModal}
+                    setShowConfirmationModal = {setShowConfirmationModal}
+                    warningData = {warningData}
+                />
+            </View>
+        }
+        
+        <View key={"TopicScreen-top-background"} style={{position: 'absolute',
+                    top:0, bottom:0,
+                    left: 0, right: 0, zIndex: -1}}>
+            <View 
+                key={"TopicScreen-bottom-background"}
+                style={{backgroundColor: COLORS.primary, height: 300}}
+            />
 
-				<ImageBackground source={bgImage} 
-				style={{width:"100%", height:"100%"}} 
-				resizeMode="cover">
-					<CircleButton 
-							buttonImage= {plusImage}
-							imageWidth = {65}
-                    		imageHeight = {65}
-							onPressHandle= {()=> {setModalVisible(true)}}
-							bottom={5} right={5} width={80} height={80}
-                    		borderRadius = {50} opacity= {0.7}
-							position= {'absolute'}
-							key={"add-new-quiz-button"}
-						/>
-					
-					<View key={"quiz-view-cards"}>
-						{quizData.length == 0 ? 
-						<QuizViewCard quiz={undefined}/>
-						:
-						<FlatList data={quizData}
-							keyboardShouldPersistTaps={"always"}
-							ListHeaderComponent={<TopicViewHeader topic={topic}/>}
-							renderItem={
-								({item}) => <QuizViewCard 
-											quiz={item}
-											setWarningData = {setWarningData}
-											setShowConfirmationModal = {setShowConfirmationModal}
-											/>}
-							keyExtractor = {(item) => {return item.id.toString() + "_quiz"}}
-							showsVerticalScrollIndicator={true}
-						>
-						</FlatList>
-						}
-						<TopicAndQuestionModal 
-							onAddHandle = {addNewQuizToDB}
-							modalVisible = {modalVisible}
-							setModalVisible = {setModalVisible}
-							title = {"Add New Quiz"}
-							head = {"Question"}
-							body = {"Answer"}
-                    	/>
-						<ConfirmationModal 
-							confirmationHandle = {deleteQuizFromTopic}
-							warningData = {warningData}
-							showConfirmationModal = {showConfirmationModal}
-							setShowConfirmationModal = {setShowConfirmationModal}
-						/>
-					</View>
-				</ImageBackground>
-			</View>
-		</SafeAreaView>
-  	)
+        </View>
+    </SafeAreaView>
+  )
 }
-
 export default TopicScreen

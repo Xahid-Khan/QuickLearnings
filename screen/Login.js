@@ -29,11 +29,12 @@ const Login = () => {
             signInWithEmailAndPassword(auth, email, password)
                 .then((userCred) => {
                     setSnackIsVisible(false);
+                    currentUser(true)
                     setTimeout(() => {
                         navigation.dispatch(
                             navigation.reset({
                                 index: 0,
-                                routes: [{name: "Welcome"}]
+                                routes: [{name: "LanguageScreen"}]
                             })
                         )
                     }, 500)
@@ -56,7 +57,7 @@ const Login = () => {
         navigation.dispatch(
             navigation.reset({
                 index: 0,
-                routes: [{name: "Welcome"}]
+                routes: [{name: "LanguageScreen"}]
             })
         )
     } else {

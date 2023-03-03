@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import {getFirestore, collection, where, getDocs} from "firebase/firestore";
+import {getFirestore, collection, where, getDocs, query} from "firebase/firestore";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -24,12 +24,11 @@ const db = getFirestore(app);
 
 let userFound = undefined;
 
-const currentUser = () => {
-  if (auth.currentUser && !userFound) {
-    getDocs(
-      collection(db, "users"),
-      where("email", "==", auth.currentUser.email)
-      )
+const currentUser = (newRequest = false) => {
+  if (auth.currentUser && newRequest) {
+    const q = query(collection(db, "users"),
+    where("email", "==", auth.currentUser.email))
+    getDocs(q)
       .then((result) => {
           result.forEach((user) => {
             userFound = user.data();

@@ -41,7 +41,7 @@ const Quiz = ({route}) => {
             Alert.alert("Finished", "Good Job", [
                 {
                     text:"OK",
-                    onPress: () => {navigation.navigate("Home", {id: 111})}
+                    onPress: () => {navigation.navigate("TopicScreen", {id: 111})}
                 }
             ])
         } else {

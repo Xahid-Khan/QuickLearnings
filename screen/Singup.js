@@ -71,7 +71,7 @@ const Singup = () => {
                     } catch (e) {
                         console.log(e);
                     }
-                    navigation.navigate("Welcome");
+                    navigation.navigate("LanguageScreen");
                 })
                 .catch((err) => {
                     if (err.message.includes("email-already-in-use")){
@@ -95,7 +95,7 @@ const Singup = () => {
         navigation.dispatch(
             navigation.reset({
                 index: 0,
-                routes: [{name: "Welcome"}]
+                routes: [{name: "LanguageScreen"}]
             })
         )
     } else {

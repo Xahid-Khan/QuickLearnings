@@ -13,10 +13,10 @@ import LanguageModal from '../modals/LanguageModal';
 import ConfirmationModal from '../modals/ConfirmationModal';
 import * as transaction from "../modals/transactions";
 
-const Welcome = () => {
+const LanguageScreen = () => {
     const navigation = useNavigation();
     const loggedIn = auth.currentUser;
-    const userInfo = currentUser();
+    const userInfo = currentUser(true);
     const [isLoading, setIsLoading] = useState(true);
     const [modalVisible, setModalVisible] = useState(false);
     const [showSnackError, setShowSnackError] = useState(false);
@@ -118,7 +118,7 @@ const Welcome = () => {
                                             data={item}
                                             cardId = {item.id}
                                             value = {item.language}
-                                            destination = "Home"
+                                            destination = "TopicScreen"
                                             setShowConfirmationModal = {setShowConfirmationModal}
                                             setWarningData = {setWarningData}
                                             editable = {false}
@@ -145,10 +145,10 @@ const Welcome = () => {
                     setShowConfirmationModal = {setShowConfirmationModal}
                     warningData = {warningData}
                     />
-                <View key={"home-top-background"} style={{position: 'absolute',
+                <View key={"TopicScreen-top-background"} style={{position: 'absolute',
                     top:0, bottom:0,
                     left: 0, right: 0, zIndex: -1}}>
-                    <View key={"home-bottom-background"} style={{backgroundColor: COLORS.primary, height: 300}}/>
+                    <View key={"TopicScreen-bottom-background"} style={{backgroundColor: COLORS.primary, height: 300}}/>
 
                 </View>
             </>
@@ -157,7 +157,7 @@ const Welcome = () => {
     )
 }
 
-export default Welcome
+export default LanguageScreen
 
 const styles = StyleSheet.create({
     welcomePage: {

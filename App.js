@@ -4,10 +4,10 @@ import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import Login from './screen/Login';
 import Singup from './screen/Singup';
-import Welcome from './screen/Welcome';
-import Home from './screen/Home';
-import Quiz from './screen/Quiz';
+import LanguageScreen from './screen/LanguageScreen';
 import TopicScreen from './screen/TopicScreen';
+import Quiz from './screen/Quiz';
+import QuizScreen from './screen/QuizScreen';
 import * as SQLite from 'expo-sqlite';
 import { LoadingScreen } from './components';
 
@@ -109,13 +109,13 @@ export default App = () => {
     <NavigationContainer theme={theme}>
       <Stack.Navigator 
         screenOptions = {{headerShown: false}}
-        initialRouteName = "Welcome"
+        initialRouteName = "LanguageScreen"
       >
         <Stack.Screen name="Login" component={Login}/>
         <Stack.Screen name="Signup" component={Singup}/>
-        <Stack.Screen name="Welcome" component={Welcome}/>
-        <Stack.Screen name="Home" component={Home}/>
-        <Stack.Screen name="Topic" component={TopicScreen}/>
+        <Stack.Screen name="LanguageScreen" component={LanguageScreen}/>
+        <Stack.Screen name="TopicScreen" component={TopicScreen}/>
+        <Stack.Screen name="QuizScreen" component={QuizScreen}/>
         <Stack.Screen name="Quiz" component={Quiz}/>
       </Stack.Navigator>
     </NavigationContainer>
