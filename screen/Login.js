@@ -29,7 +29,6 @@ const Login = () => {
             signInWithEmailAndPassword(auth, email, password)
                 .then((userCred) => {
                     setSnackIsVisible(false);
-                    currentUser(true)
                     setTimeout(() => {
                         navigation.dispatch(
                             navigation.reset({

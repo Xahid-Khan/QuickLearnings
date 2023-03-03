@@ -57,12 +57,13 @@ const TopicAndQuestionModal = (props) => {
                             borderWidth:2,
                             borderRadius:20,
                             width:"90%",
-                            height:60,
+                            height:100,
                             paddingHorizontal: 10,
                             backgroundColor:COLORS.quizViewCard,
                         }}
-                            placeholder={headerPlaceHolder + ' (64 Characters Max)'}
-                            maxLength={64}
+                            multiline
+                            placeholder={headerPlaceHolder + ' (256 Characters Max)'}
+                            maxLength={256}
                             value = {newTopic}
                             onChangeText={(e) => setNewTopic(validateInput(e))}
                         />
@@ -71,7 +72,7 @@ const TopicAndQuestionModal = (props) => {
                             borderWidth:2,
                             borderRadius:20,
                             width:"90%",
-                            height:300,
+                            height:200,
                             textAlignVertical:"top",
                             paddingHorizontal: 10,
                             paddingVertical: 10,
