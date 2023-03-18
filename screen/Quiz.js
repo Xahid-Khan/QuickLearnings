@@ -4,6 +4,7 @@ import { SafeAreaView, Text, View, ImageBackground, Alert } from 'react-native';
 import { CircleButton, RectButton } from '../components/Button';
 import {AskQuestion, LoadingScreen } from "../components";
 import {COLORS} from "../constants";
+import arrayShuffle from 'array-shuffle';
 
 
 const bgImage = require("../assets/TopicBG.png");
@@ -11,8 +12,8 @@ const goBackImage = require("../assets/goBack.png");
 
 const Quiz = ({route}) => {
     const navigation = useNavigation();
-    const newQuizData = route.params.randomeData;
-    const quizData = [...newQuizData].splice(0, newQuizData.length < 10 ? newQuizData.length : 10)
+    const newQuizData = arrayShuffle(route.params.randomeData);
+    const quizData = [...newQuizData].splice(0, newQuizData.length < 50 ? newQuizData.length : 50)
     const [loading, setLoading] = useState(true);
     const [index, setIndex] = useState(0);
     const [quiz, setQuiz] = useState(quizData[index]);
@@ -22,10 +23,10 @@ const Quiz = ({route}) => {
         let randomeAnswers = [];
         let trackIndex = [];
         while (randomeAnswers.length < 3) {
-            let tempIndex = (Math.ceil(Math.random() * (quizData.length - 1)));
+            let tempIndex = (Math.ceil(Math.random() * (newQuizData.length - 1)));
             if (tempIndex != index && !trackIndex.includes(tempIndex)) {
                 trackIndex.push(tempIndex);
-                randomeAnswers.push(quizData[tempIndex].answer);
+                randomeAnswers.push(newQuizData[tempIndex].answer);
             }
         }
         randomeAnswers.push(quizData[index].answer);
@@ -41,7 +42,9 @@ const Quiz = ({route}) => {
             Alert.alert("Finished", "Good Job", [
                 {
                     text:"OK",
-                    onPress: () => {navigation.navigate("TopicScreen", {id: 111})}
+                    onPress: () => {
+                        navigation.pop();
+                    }
                 }
             ])
         } else {

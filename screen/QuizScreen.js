@@ -6,11 +6,9 @@ import { LoadingScreen, QuizViewCard, TopicViewHeader} from '../components';
 import { CircleButton, RectButton } from '../components/Button';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {COLORS} from "../constants";
-import * as SQLite from "expo-sqlite";
 import ConfirmationModal from '../modals/ConfirmationModal';
-import { db, auth, currentUser } from '../firebase';
 import * as transactions from "../modals/transactions";
-import { addDoc, collection, deleteDoc, doc, getDocs, where } from 'firebase/firestore';
+import arrayShuffle from 'array-shuffle';
 
 const bgImage = require("../assets/TopicBG.png");
 const goBackImage = require("../assets/goBack.png");
@@ -72,7 +70,7 @@ const QuizScreen = ({route}) => {
 						buttonImage= {goBackImage}
 						imageWidth = {30}
 						imageHeight = {30}
-						onPressHandle= {()=> navigation.goBack()}
+						onPressHandle= {()=> navigation.pop()}
 						width={50} height={50}
 						borderRadius = {50}
 						backgroundColor = {COLORS.white}
@@ -81,8 +79,9 @@ const QuizScreen = ({route}) => {
 					<RectButton 
 						buttonImage={logo}
 						onPressHandle={()=> {
-							const randomeData = quizData.slice().sort(() => {Math.random() - 0.5})
-							navigation.navigate("Quiz", {randomeData})}}
+							const randomeData = quizData;
+							navigation.navigate("Quiz", {randomeData})
+						}}
 						activate = {quizData.length < 5 ? true : false}
 						buttonText = {quizData.length < 5 ? "Add 5 Quiz to Enable" : "SART PRACTICE"}
 						backgroundColor= {COLORS.quizViewCard}

@@ -1,5 +1,6 @@
 import { auth, db } from '../firebase';
 import { deleteDoc, collection, doc, addDoc, getDocs, where, query } from 'firebase/firestore';
+import arrayShuffle from 'array-shuffle';
 
 const getLanguages = (setLanguages, setIsLoading) => {
     if (auth.currentUser) {
@@ -140,7 +141,7 @@ const getUpdatedQuizData = (filterInput, setQuizData, setLoading, topicId) => {
                 createTopic.id = data.id;
                 updatedTopics.push(createTopic);
             })
-            setQuizData(updatedTopics);
+            setQuizData(arrayShuffle(updatedTopics));
             setLoading(false);
         })
         .catch((err) => {
